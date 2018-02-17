@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.mapper">
+
+	<!-- list all registered busking (performance, show) -->
+	<select id="listBusking" resultType="com.web.model.BuskingVO">
+		select * from indietrade_busking
+	</select>
+  
+  	<!-- list my busking -->
+	<select id="listMyBusking" resultType="com.web.model.BuskingVO" parameterType="String">
+  		select * from indietrade_busking where busking_userid = #{busking_userid}
+	</select>
+
+	<!-- insert busking -->
+	<insert id="insertBusking" parameterType="com.web.model.BuskingVO">
+		insert into indietrade_busking values(
+			indietrade_busking_seq.nextval, 
+			#{busking_name}, 
+			#{busking_userid}, 
+			#{busking_username}, 
+			#{busking_host},
+ 			#{busking_sponsor}, 
+ 			#{busking_ticketprice}, 
+ 			#{busking_bookinglink}, 
+ 			#{busking_place}, 
+ 			#{busking_poster},
+ 			#{busking_contact},
+ 			#{busking_otherinfo},
+ 			#{busking_time},
+ 			#{busking_date},
+ 			sysdate, 
+ 			#{busking_duration}, 
+ 			0
+ 		)
+	</insert>
+	
+	<!-- get certain busking -->
+	<select id="getBusking" resultType="com.web.model.BuskingVO" parameterType="int">
+		select * from indietrade_busking where busking_no = #{busking_no}
+	</select>
+
+	<!-- approve busking -->
+	<update id="approveBusking" parameterType="com.web.model.BuskingVO"> 
+		update indietrade_busking set busking_visibility = #{busking_visibility} where busking_no = #{busking_no}
+	</update>
+	
+	<!-- edit busking -->
+	<update id="editBusking" parameterType="com.web.model.BuskingVO"> 
+		update indietrade_busking set 
+			busking_name = #{busking_name},
+			busking_username = #{busking_username},
+			busking_host = #{busking_host},
+			busking_sponsor = #{busking_sponsor},
+			busking_ticketprice = #{busking_ticketprice},
+			busking_bookinglink = #{busking_bookinglink}, 
+			busking_place = #{busking_place}, 
+			busking_poster =#{busking_poster},
+			busking_contact = #{busking_contact},
+			busking_otherinfo = #{busking_otherinfo}, 
+			busking_time = #{busking_time},
+			busking_date = #{busking_date},
+			busking_duration = #{busking_duration} 
+			where busking_no = #{busking_no}
+	</update>
+	
+	<!-- delete busking -->
+	<delete id="deleteBusking" parameterType="int"> 
+		delete from indietrade_busking where busking_no = #{busking_no}
+	</delete>
+
+	<!-- count all registered busking -->
+	<select id="busgetCount" resultType="int">
+    	select count(*) from indietrade_busking
+	</select>
+	
+	<!-- list all registered busking ( + paging ) -->
+	<select id="alllistBusking" resultType="com.web.model.BuskingVO" parameterType="map">
+    	select * from (select rownum rn, A.* from (select * from indietrade_busking order by busking_no asc)A) 
+    	where rn between #{start} and #{end}
+	</select>
+   
+</mapper>	

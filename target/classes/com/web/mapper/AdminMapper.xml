@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.web.mapper">
+	
+	<!-- Total of All Users except Admin -->
+	<select id="countUsers" resultType="int">
+		select count(*) from indietrade_user where user_email != '0' and user_authority!='admin'
+	</select>
+	
+	<!-- Total of All Musics -->
+	<select id="countMusics" resultType="int">
+		select count(*) from indietrade_music
+	</select>
+	
+	<!-- add 1 row if login successed and authenticated -->
+	<insert id="plusVisit">
+		INSERT INTO indietrade_visit (VISIT_DATE) VALUES (sysdate)
+	</insert>
+
+	<!-- Total of all visit -->
+	<select id="countVisit" resultType="int">
+		select count(*) from indietrade_visit
+	</select>
+
+	<!-- Total of today's visit -->
+	<select id="countVisit_today" resultType="int">
+		select count(*) from indietrade_visit where 
+		substr(to_char(visit_date), 1, 9) = to_date(sysdate, 'yy/MM/dd')
+	</select>
+	
+	<!-- list recent 3 registered user -->
+	<select id="listUser" resultType="com.web.model.UserVO">
+		select * from 
+		(select * from indietrade_user where user_email != '0' and user_authority!='admin' order by user_no desc) 
+		where rownum &lt; 4
+	</select>
+	
+	<!-- list recent 3 registered album -->
+	<select id="listMusicboard" resultType="com.web.model.MusicboardVO">
+		select * from 
+		(select * from indietrade_musicboard order by musicboard_no desc) 
+		where rownum &lt; 4
+	</select>
+	
+	<!-- insert category (which later shows at the top navbar in the mainindex) -->
+	<insert id="insertCategory" parameterType="com.web.model.CategoryVO">
+		insert into indietrade_category 
+		values (
+			indietrade_category_seq.nextval, 
+			#{category_major}, 
+			#{category_minor}, 
+			#{category_link}
+		)
+	</insert>
+	
+	<!-- list all registered category  -->
+	<select id="listCategory" resultType="com.web.model.CategoryVO">
+		select * from indietrade_category order by category_no desc
+	</select>
+	
+	<!-- list all user_id except user_authority == 'admin' or unregistered -->
+	<select id="listUsername" resultType="com.web.model.UserVO">
+		select user_id from indietrade_user 
+		where user_email != '0' and (user_authority='artist' or user_authority='user')
+	</select>
+
+	<!-- list all user except user_authority == 'admin' or unregistered ( + paging ) -->
+	<select id="listAllUser" resultType="com.web.model.UserVO" parameterType="map">
+		select * from 
+		(select rownum rn, A.* from (select * from indietrade_user where user_email != '0' and user_authority!='admin'
+		order by user_no asc)A) 
+		where rn between #{start} and #{end}
+	</select>
+
+	<!-- list all unregistered user ( + paging) -->
+	<select id="listAllUnregistered" resultType="com.web.model.UserVO" parameterType="map">
+		select * from 
+		(select rownum rn, A.* from (select * from indietrade_user where user_isdelete = 1 
+		order by user_no asc)A) 
+		where rn between #{start} and #{end}
+	</select>
+
+	<!-- list all artist user except unregistered ( + paging )  -->
+	<select id="listAllArtist" resultType="com.web.model.UserVO" parameterType="map">
+		select * from 
+		(select rownum rn, A.* from (select * from indietrade_user where (user_email != '0' and user_authority='artist')
+		order by user_no asc)A) 
+		where rn between #{start} and #{end}
+	</select>
+
+	<!-- list all fan user except unregistered ( + paging ) -->
+	<select id="listAllFan" resultType="com.web.model.UserVO" parameterType="map">
+		select * from 
+		(select rownum rn, A.* from (select * from indietrade_user where (user_email != '0' and user_authority='user')
+		order by user_no asc)A) 
+		where rn between #{start} and #{end}
+	</select>
+
+	<!-- count all users except unregistered -->
+	<select id="getCount" resultType="int">
+		select count(*) from
+		indietrade_user where user_email != '0'
+	</select>
+
+	<!-- count all unregistered -->
+	<select id="getCount2" resultType="int">
+		select count(*) from
+		indietrade_user where user_isdelete = 1
+	</select>
+
+	<!-- count all categories -->
+	<select id="getCount_category" resultType="int">
+		select count(*) from
+		indietrade_category
+	</select>
+	
+	<!-- count all artist user except unregistered -->
+	<select id="getCounta" resultType="int">
+		select count(*) from indietrade_user 
+		where (user_email != '0' and user_authority='artist')
+	</select>
+
+	<!-- count all fan user except unregistered -->
+	<select id="getCountb" resultType="int">
+		select count(*) from indietrade_user 
+		where (user_email != '0' and user_authority='user')
+	</select>
+
+	<!-- search option by name or id -->
+	<select id="getCountByCond" parameterType="String" resultType="int">
+		select count(*) from indietrade_user
+		<if test="searchOption =='name'">
+			WHERE user_name LIKE '%'||#{searchString}||'%'
+		</if>
+		<if test="searchOption =='id'">
+			WHERE user_id LIKE '%'||#{searchString}||'%'
+		</if>
+	</select>
+
+	<!-- search option by name -->
+	<select id="getCountByCond2" parameterType="String" resultType="int">
+		select count(*) from indietrade_user
+		WHERE user_name LIKE '%'||#{searchString}||'%'
+	</select>
+
+	<!-- search member by name or id except unregistered ( + paging ) -->
+	<select id="listMemberByCond" resultType="com.web.model.UserVO" parameterType="map">
+		<if test="searchOption == 'name' and searchString != '' ">
+			select * from (select rownum rn, A.* from 
+			(select * from indietrade_user WHERE 
+			(user_name LIKE '%'||#{searchString}||'%' and user_email != '0' and user_authority!='admin') order by user_no asc)A) 
+			where rn between #{start} and #{end}
+		</if>
+		<if test="searchOption == 'id' and searchString != '' ">
+			select * from (select rownum rn, A.* from
+			(select * from
+			indietrade_user
+			WHERE (user_id LIKE '%'||#{searchString}||'%' and
+			user_email != '0' and user_authority!='admin')
+			order by user_no asc)A) where rn between #{start}
+			and #{end}
+		</if>
+		<if test="searchOption == null and searchString == '' ">
+			select * from (select rownum rn, A.* from (select * from
+			indietrade_user
+			where user_email != '0' and user_authority!='admin' order by user_no asc)A) where
+			rn between
+			#{start} and #{end}
+		</if>
+	</select>
+
+	<!-- search unregistered by name ( + paging ) -->
+	<select id="listUnregisteredByCond" resultType="com.web.model.UserVO" parameterType="map">
+		<if test="searchString == '' ">
+			select * from (select rownum rn, A.* from (select * from indietrade_user
+			where 
+			user_isdelete = 1 order by user_no asc)A) 
+			where
+			rn between #{start} and #{end}
+		</if>
+		<if test="searchString != '' ">
+			select * from (select rownum rn, A.* from (select * from indietrade_user
+			WHERE 
+			(user_name LIKE '%'||#{searchString}||'%' and user_isdelete = 1) order by user_no asc)A) 
+			where 
+			rn between #{start} and #{end}
+		</if>
+	</select>
+
+	<!-- search receivedmessage by message title for admin ( + paging ) -->
+	<select id="listReceivedMessageByCond" resultType="com.web.model.MessageVO" parameterType="map">
+		<if test="searchString == '' ">
+			select * from (select rownum rn, A.* from (select * from indietrade_message
+			where 
+			(MESSAGE_ISDELETEDBYRECEIVER = 'N' and message_isdeletedbysender='N') and 
+			(message_receiverid = #{adminid} or message_receiverid= 'admin') order by message_no asc)A) 
+			where rn between #{start} and #{end}
+		</if>
+		<if test="searchString != '' ">
+			select * from (select rownum rn, A.* from (select * from indietrade_message
+			where 
+			(message_title LIKE '%'||#{searchString}||'%' and MESSAGE_ISDELETEDBYRECEIVER = 'N' and message_isdeletedbysender='N') and 
+			(message_receiverid = #{adminid} or message_receiverid= 'admin') order by message_no asc)A) 
+			where rn between #{start} and #{end}
+		</if>
+	</select>
+
+	<!-- search receivedmessage by message title for user ( + paging ) -->
+	<select id="listReceivedMessageByCond_user" resultType="com.web.model.MessageVO" parameterType="map">
+		<if test="searchString == '' ">
+			select * from (select rownum rn, A.* from (select * from indietrade_message
+			where 
+			(MESSAGE_ISDELETEDBYRECEIVER = 'N' and message_isdeletedbysender='N') and 
+			(message_receiverid = #{userid} or message_receiverid= 'all') order by message_no asc)A) 
+			where rn between #{start} and #{end}
+		</if>
+		<if test="searchString != '' ">
+			select * from (select rownum rn, A.* from (select * from indietrade_message
+			where 
+			(message_title LIKE '%'||#{searchString}||'%' and MESSAGE_ISDELETEDBYRECEIVER = 'N' and message_isdeletedbysender='N') and 
+			(message_receiverid = #{userid} or message_receiverid= 'all') order by message_no asc)A) 
+			where rn between #{start} and #{end}
+		</if>
+	</select>
+
+	<!-- search sentmessage by message title for admin ( + paging ) -->
+	<select id="listSentMessageByCond" resultType="com.web.model.MessageVO" parameterType="map">
+		<if test="searchString == '' ">
+			select * from (select rownum rn, A.* from (select * from indietrade_message
+			where 
+			(MESSAGE_ISDELETEDBYSENDER = 'N' and MESSAGE_HIDE = 'N') and
+			message_senderid = #{adminid} order by message_no asc)A) 
+			where rn between #{start} and #{end}
+		</if>
+		<if test="searchString != '' ">
+			select * from (select rownum rn, A.* from (select * from indietrade_message
+			where 
+			(message_title LIKE '%'||#{searchString}||'%' and MESSAGE_ISDELETEDBYSENDER = 'N' and MESSAGE_HIDE = 'N') and
+			message_senderid = #{adminid} order by message_no asc)A) 
+			where rn between #{start} and #{end}
+		</if>
+	</select>
+
+	<!-- get certain category -->
+	<select id="getCategory" resultType="com.web.model.CategoryVO" parameterType="int">
+		select * from indietrade_category 
+		where 
+		category_no = #{category_no}
+	</select>
+
+	<!-- update certain category -->
+	<update id="updateCategory" parameterType="com.web.model.CategoryVO">
+		update indietrade_category set 
+			category_major = #{category_major},
+			category_minor = #{category_minor},
+			category_link = #{category_link}
+		where 
+			category_no = ${category_no}
+	</update>
+	
+	<!-- delete certain category -->
+	<delete id="deleteCategory" parameterType="int">
+		delete from indietrade_category 
+		where 
+		category_no = #{category_no}
+	</delete>
+	
+	<!-- terminate certain user -->
+	<delete id="terminateuser" parameterType="int">
+		delete from indietrade_user 
+		where 
+		user_no = #{user_no}
+	</delete>
+	
+	<!-- list all registered music  -->
+	<select id="allMusic_admin" resultType="com.web.model.MusicVO" parameterType="map">
+		select * from (select rownum rn, A.* from (select * from indietrade_music order by music_no asc)A) 
+		where 
+		rn between #{start} and #{end}
+	</select>
+	
+	<!-- list all registered album -->
+	<select id="allMusicBoard_admin" resultType="com.web.model.MusicboardVO" parameterType="map">
+		select * from (select rownum rn, A.* from (select * from indietrade_musicboard order by musicboard_no asc)A) 
+		where 
+		rn between #{start} and #{end}
+	</select>
+	
+	<!-- list all registered sns (artist individual page) -->
+	<select id="allSns_admin" resultType="com.web.model.SnspageVO" parameterType="map">
+		select * from (select rownum rn, A.* from (select * from indietrade_snspage order by user_no asc)A) 
+		where 
+		rn between #{start} and #{end}
+	</select>
+
+
+</mapper>

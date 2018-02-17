@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>oracle.jdbc.driver.OracleDriver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:oracle:thin:@127.0.0.1:1521:xe</value>
+		</property>
+		<property name="username">
+			<value>java7</value>
+		</property>
+		<property name="password">
+			<value>java7</value>
+		</property>
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="typeAliasesPackage" value="com.web.model" />
+		<property name="mapperLocations" value="classpath:com/web/mapper/*.xml" />
+	</bean>
+
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+
+	<bean id="logService" class="com.web.serviceimpl.LogServiceImpl">
+	</bean>
+	
+	<bean id="adminService" class="com.web.serviceimpl.AdminServiceImpl">
+	</bean>
+	
+	<bean id="qnaboardService" class="com.web.serviceimpl.QnaboardServiceImpl">
+	</bean>
+	
+	<bean id="replyService" class="com.web.serviceimpl.ReplyServiceImpl">
+	</bean>
+	
+	<bean id="noticeboardService" class="com.web.serviceimpl.NoticeboardServiceImpl">
+	</bean>
+	
+	<bean id="messageService" class="com.web.serviceimpl.MessageServiceImpl">
+	</bean>
+	
+	<bean id="snsService" class="com.web.serviceimpl.SnsServiceImpl">
+	</bean>
+	
+	<bean id="buskingService" class="com.web.serviceimpl.BuskingServiceImpl">
+	</bean>
+	
+	<bean id="likeService" class="com.web.serviceimpl.LikeServiceImpl">
+	</bean>
+	
+	<bean id="musicboardService" class="com.web.serviceimpl.MusicboardServiceImpl">
+	</bean>
+
+	<bean id="searchService" class="com.web.serviceimpl.SearchServiceImpl">
+	</bean>
+	
+	<bean id="snsboardService" class="com.web.serviceimpl.SnsboardServiceImpl">
+	</bean>
+	
+	
+	
+	<bean id="logDao" class="com.web.daoimpl.LogDaoImpl">
+	</bean>
+	
+	<bean id="adminDao" class="com.web.daoimpl.AdminDaoImpl">
+	</bean>
+	
+	<bean id="qnaboardDao" class="com.web.daoimpl.QnaboardDaoImpl">
+	</bean>
+	
+	<bean id="replyDao" class="com.web.daoimpl.ReplyDaoImpl">
+	</bean>
+	
+	<bean id="noticeboardDao" class="com.web.daoimpl.NoticeboardDaoImpl">
+	</bean>
+	
+	<bean id="messageDao" class="com.web.daoimpl.MessageDaoImpl">
+	</bean>
+	
+	<bean id="snsDao" class="com.web.daoimpl.SnsDaoImpl">
+	</bean>
+	
+	<bean id="buskingDao" class="com.web.daoimpl.BuskingDaoImpl">
+	</bean>
+	
+	<bean id="likeDao" class="com.web.daoimpl.LikeDaoImpl">
+	</bean>
+	
+	<bean id="musicboardDao" class="com.web.daoimpl.MusicboardDaoImpl">
+	</bean>
+
+	<bean id="searchDao" class="com.web.daoimpl.SearchDaoImpl">
+	</bean>
+	
+	<bean id="snsboardDao" class="com.web.daoimpl.SnsboardDaoImpl">
+	</bean>
+	
+	<!-- 587 - Gmail Server -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="587" />
+		<property name="username" value="milfastlane11@gmail.com"/>
+		<property name="password" value="morio12#5"/>
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.transport.protocol">smtp</prop>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.debug">true</prop>
+			</props>
+		</property>
+
+	</bean>
+	
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
+	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
+	
+
+
+</beans>

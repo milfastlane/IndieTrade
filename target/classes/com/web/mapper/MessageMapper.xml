@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.mapper">
+	
+	<!-- insert message -->
+  	<insert id="insertMessage" parameterType="com.web.model.MessageVO">
+  		insert into indietrade_message values(
+  			indietrade_message_seq.nextval, 
+  			#{message_receiverid}, 
+  			#{message_senderid}, 
+  			#{message_title}, 
+  			#{message_context}, 
+  			sysdate, 
+  			sysdate, 
+  			'N', 
+  			'N', 
+  			'N', 
+  			'N'
+  		)
+  	</insert>
+	
+	<select id="sentlistfromadmin" resultType="com.web.model.MessageVO" parameterType="map">
+  		select * from (select rownum rn, A.* from (select * from indietrade_message 
+  		where 
+  			(MESSAGE_ISDELETEDBYSENDER = 'N' and MESSAGE_HIDE = 'N') and message_senderid = #{adminid} order by message_no asc)A) 
+  		where 
+  			rn between #{start} and #{end}
+  	</select>
+  	
+  	<select id="receivedlistfromuser" resultType="com.web.model.MessageVO" parameterType="map">
+  		select * from (select rownum rn, A.* from (select * from indietrade_message 
+  		where 
+  			(MESSAGE_ISDELETEDBYRECEIVER = 'N' and message_isdeletedbysender='N') and (message_receiverid = #{adminid} or message_receiverid= 'admin') order by message_no asc)A) 
+  		where 
+  			rn between #{start} and #{end}
+  	</select>
+  	
+  	<select id="sentlistfromuser" resultType="com.web.model.MessageVO" parameterType="String">
+  		select * from (select rownum rn, A.* from (select * from indietrade_message 
+  		where 
+  			(MESSAGE_ISDELETEDBYSENDER = 'N' and MESSAGE_HIDE = 'N') and message_senderid = #{userid} order by message_no asc)A) 
+  		where 
+  			rn between #{start} and #{end}
+  	</select>
+  	
+    <select id="receivedlistfromadmin" resultType="com.web.model.MessageVO" parameterType="String">
+  		select * from (select rownum rn, A.* from (select * from indietrade_message 
+  		where 
+  			(MESSAGE_ISDELETEDBYRECEIVER = 'N' and message_isdeletedbysender='N') and (message_receiverid = #{userid} or message_receiverid= 'all') order by message_no asc)A)
+  		where 
+  			rn between #{start} and #{end}
+  	</select>
+  	
+  	<!-- get the certain message -->
+  	<select id="getMessage" resultType="com.web.model.MessageVO" parameterType="int">
+  		select * from indietrade_message where message_no = #{message_no} 	
+  	</select>
+  	
+  	<!-- if sender deletes -->
+  	<update id="updatehide" parameterType="int">
+  		update indietrade_message set MESSAGE_HIDE = 'Y' where message_no = #{message_no}
+  	</update>
+  	
+  	<!-- if receiver reads -->
+    <update id="updatemessageread" parameterType="int">
+  		update indietrade_message set MESSAGE_READ = 'Y' where message_no = #{message_no}
+  	</update>
+ 	
+ 	<!-- if receiver deletes -->
+  	<update id="updateisdeletedbyreceiver" parameterType="int">
+  		update indietrade_message set MESSAGE_ISDELETEDBYRECEIVER = 'Y' where message_no = #{message_no}
+  	</update>
+ 
+ 	<!-- if sender cancels before receiver reads -->
+  	<update id="updateisdeletedbysender" parameterType="int">
+  		update indietrade_message set MESSAGE_ISDELETEDBYSENDER = 'Y' where message_no = #{message_no}
+  	</update> 	
+
+	<!-- this does not needs (CHECK LATER) -->
+ 	<delete id="deleteMessage" parameterType="int">
+ 		delete from indietrade_message where message_no = #{message_no} 													
+ 	</delete>
+ 	
+ 	<!-- count how many valid received messages from user -->
+	<select id="getCount_receivedlistfromuser" resultType="int" parameterType="String">
+		select count(*) from indietrade_message 
+		where 
+			(message_isdeletedbysender='N' and message_isdeletedbyreceiver='N') and (message_receiverid='admin' or message_receiverid=#{adminid})   
+	</select>
+
+	<!-- count how many valid received messages from user while satisfying search result -->
+	<select id="getCount_receivedlistfromuser_byCond" resultType="int" parameterType="String">
+		select count(*) from indietrade_message 
+		where 
+			(message_title LIKE '%'||#{searchString}||'%' and message_isdeletedbysender='N' and message_isdeletedbyreceiver='N') and (message_receiverid='admin' or message_receiverid=#{adminid}) 
+	</select>
+   	
+   	<!-- count how many valid received message from admin -->
+	<select id="getCount_receivedlistfromadmin" resultType="int" parameterType="String">
+       select count(*) from indietrade_message where (message_isdeletedbysender='N' and message_isdeletedbyreceiver='N')  and (message_receiverid='all' or  message_receiverid=#{userid})
+	</select>
+	
+	<!-- count how many valid received message from admin while satisfying search result -->
+	<select id="getCount_receivedlistfromadmin_byCond" resultType="int" parameterType="String">
+		select count(*) from indietrade_message where (message_title LIKE '%'||#{searchString}||'%' and message_isdeletedbysender='N' and message_isdeletedbyreceiver='N') and (message_receiverid='all' or message_receiverid=#{userid}) 
+	</select>
+   
+	<!-- count how many valid sent messages from user -->
+	<select id="getCount_sentlistfromuser" resultType="int" parameterType="String">
+		select count(*) from indietrade_message where  message_senderid=#{userid} and (message_isdeletedbysender='N' and message_hide='N')
+	</select>
+    
+    <!-- count how many valid sent message from user while satisfying search result -->
+	<select id="getCount_sentlistfromuser_byCond" resultType="int" parameterType="String">
+		select count(*) from indietrade_message where  (message_title LIKE '%'||#{searchString}||'%' and message_senderid=#{userid}) and (message_isdeletedbysender='N' and message_hide='N')
+	</select>
+   
+   	<!-- count how many valid sent messages from admin -->
+   	<select id="getCount_sentlistfromadmin" resultType="int" parameterType="String">
+    	select count(*) from indietrade_message where message_senderid=#{adminid} and (message_isdeletedbysender='N' and message_hide='N')
+   	</select>
+   
+    <!-- count how many valid sent message from admin while satisfying search result -->
+   	<select id="getCount_sentlistfromadmin_byCond" resultType="int" parameterType="String">
+    	select count(*) from indietrade_message where (message_title LIKE '%'||#{searchString}||'%' and message_senderid=#{adminid}) and (message_isdeletedbysender='N' and message_hide='N')
+   	</select>
+   
+   
+   
+    
+</mapper>	

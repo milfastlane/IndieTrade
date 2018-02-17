@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.mapper">
+	
+	<!-- sns like -->
+	<insert id="like_snspageUp" parameterType="com.web.model.LikeVO">
+		insert into indietrade_like(
+			like_sns_artistid, 
+			like_sns_userid
+		)values(
+			#{like_sns_artistid},
+			#{like_sns_userid}
+		)
+	</insert>
+	
+	<!-- sns like cancel -->
+	<delete id="like_snspageDown">
+		delete indietrade_like 
+		where 
+		like_sns_artistid = #{like_sns_artistid} and
+		like_sns_userid = #{like_sns_userid}
+	</delete>
+	
+	<!-- album like -->
+	<insert id="like_albumUp" parameterType="com.web.model.LikeVO">
+		insert into indietrade_like(
+			like_music_boardno, 
+			like_music_userid
+		)values(
+			#{like_music_boardno},
+			#{like_music_userid}
+		)
+	</insert>
+	
+	<!-- album like cancel -->
+	<delete id="like_albumDown" parameterType="com.web.model.LikeVO">
+		delete indietrade_like 
+		where 
+		like_music_boardno = #{like_music_boardno} and
+		like_music_userid = #{like_music_userid}
+	</delete>
+	
+	<!-- list my liked albums + snspages -->
+	<select id="mylikelist" parameterType="String" resultType="com.web.model.LikeVO">
+		select * from indietrade_like 
+		where 
+		like_music_userid = #{user_id} or 
+		like_sns_userid = #{user_id}
+	</select>
+	
+	<!-- count how many likes in the specific album (CHECK LATER)-->
+	<select id="like_isalbum" parameterType="com.web.model.LikeVO" resultType="int">
+		select count(*) from indietrade_like 
+		where 
+		like_music_boardno = #{like_music_boardno} and 
+		like_music_userid = #{like_music_userid}
+	</select>	
+	<!-- count how many likes of the specific album (CHECK LATER) -->
+	<select id="like_getalbumCount" parameterType="int" resultType="int">
+		select count(*) from indietrade_like 
+		where 
+		like_music_boardno = #{like_music_boardno}
+	</select>
+	
+	<!-- count how many likes in the specific sns page (artist individual page) (CHECK LATER)-->
+	<select id="like_issnspage" parameterType="com.web.model.LikeVO" resultType="int">
+		select count(*) from indietrade_like 
+		where 
+		like_sns_artistid = #{like_sns_artistid} and 
+		like_sns_userid = #{like_sns_userid}
+	</select>
+	
+	<!-- count how many likes in the specific sns page (artist individual page) (CHECK LATER)-->
+	<select id="like_getsnspageCount" parameterType="String" resultType="int">
+		select count(*) from indietrade_like 
+		where 
+		like_sns_artistid = #{like_sns_artistid}
+	</select>
+	
+
+
+
+</mapper>

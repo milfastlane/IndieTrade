@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.mapper">
+
+	<select id="getallboard" resultType="com.web.model.SnsboardVO">
+		select * from indietrade_snsboard 
+		where 
+			snsboard_artistid=#{id} ORDER BY snsboard_contentno desc
+	</select>
+	
+	<select id="getboard" resultType="com.web.model.SnsboardVO">
+		select * from indietrade_snsboard 
+		where 
+			snsboard_artistid=#{id} 
+		<!-- 
+			ORDER BY snsboard_contentno desc
+		-->
+	</select>
+  
+	<insert id="inputboard" parameterType="com.web.model.UserVO">
+		insert into indietrade_snsboard values(
+			#{snsboard_artistid}, 
+			#{snsboard_loginid}, 
+			#{snsboard_loginidimg}, 
+			#{snsboard_loginip},
+		 	#{snsboard_loginname}, 
+		 	#{snsboard_contentno}, 
+		 	#{snsboard_content},
+		 	#{snsboard_contenttime}
+		 )
+	</insert>
+   
+  	<delete id="snsboard_del" parameterType="com.web.model.SnsboardVO">
+		delete indietrade_snsboard 
+		where 
+			snsboard_artistid =#{snsboard_artistid} and snsboard_contentno=#{snsboard_contentno}
+	</delete>
+	
+<!-- 
+	<delete id="snscontent_del" parameterType="com.web.model.SnsboardVO">
+		delete from indietrade_snsboard where snsboard_artistid=#{snsboard_artistid} and snsboard_contentno=#{snsboard_contentno}
+	</delete>
+-->
+</mapper>	

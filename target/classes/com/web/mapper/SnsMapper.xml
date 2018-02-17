@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.mapper">
+
+	<insert id="insertsnspage" parameterType="com.web.model.UserVO">
+		insert into indietrade_snspage values(
+			#{user_no},
+			#{user_id},
+			#{user_name},
+			'인사말을 작성해 주세요',
+			NULL,
+			#{user_filename}
+		)
+	</insert>
+	
+	<select id="getallsnspage" resultType="com.web.model.SnspageVO" parameterType="java.util.HashMap">
+		select * from (select rownum rn, A.* from (select * from indietrade_snspage order by user_no desc)A) 
+		where 
+			rn between #{start} and #{end}
+	</select>
+	
+  	<select id="snspage_getCount" resultType="com.web.model.SnspageVO">
+   		select * from indietrade_snspage
+  	</select>
+  
+  	<select id="getsnspage" resultType="com.web.model.SnspageVO" parameterType="String">
+  		select * from indietrade_snspage 
+  		where 
+  			snspage_artistid=#{name}
+  	</select>
+  
+  	<update id="snspage_pageproimgnameUp" parameterType="com.web.model.SnspageVO">
+  		update indietrade_snspage set snspage_profileimgname = #{snspage_profileimgname} 
+  		where 
+  			user_no=#{user_no}
+  	</update>
+  
+  	<update id="snspage_pagemainimgnameUp" parameterType="com.web.model.SnspageVO">
+  		update indietrade_snspage set 
+  			snspage_mainimgname = #{snspage_mainimgname} 
+  		where 
+  			user_no=#{user_no}
+  	</update>
+  
+  	<update id="snspage_pagenameUp" parameterType="com.web.model.SnspageVO">
+ 		update indietrade_snspage set snspage_name = #{snspage_name} 
+ 		where 
+ 			user_no=#{user_no}
+  	</update>
+  
+  	<update id="snspage_pageprocontent" parameterType="com.web.model.SnspageVO">
+  		update indietrade_snspage set 
+  			snspage_content = #{snspage_content} 
+  		where 
+  			user_no=#{user_no}
+ 	</update>
+ 	 
+	<delete id="snspage_del" parameterType="int">
+ 		delete indietrade_snspage 
+ 		where 
+ 			user_no = #{user_no}
+	</delete>
+ 	 
+</mapper>	

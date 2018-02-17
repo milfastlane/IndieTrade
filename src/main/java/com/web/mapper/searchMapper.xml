@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.mapper">
+	
+	<!-- study query distinct? -->
+
+	<select id="searchAll" resultType="com.web.model.MusicboardVO" parameterType="java.util.HashMap">
+		select DISTINCT * from (select rownum rn, A.* from (select * from indietrade_musicboard order by musicboard_no desc)A)
+		where 
+			rn between #{start} and #{end}
+	</select>
+	
+	<select id="searchViewArtist" resultType="com.web.model.MusicboardVO" parameterType="java.util.HashMap">
+		select * from (select rownum rn, A.* from (select * from indietrade_musicboard 
+		where
+			lower(musicboard_artistname) like lower('%'||#{searchString, jdbcType=VARCHAR}||'%') order by musicboard_artistname desc)A)
+		where 
+			rn between #{start} and #{end}
+	</select>
+	
+	<select id="searchViewAlbum" resultType="com.web.model.MusicboardVO" parameterType="java.util.HashMap">
+		select DISTINCT * from (select rownum rn, A.* from (select * from indietrade_musicboard 
+		where
+			lower(musicboard_name) like lower('%'||#{searchString, jdbcType=VARCHAR}||'%') order by musicboard_no desc)A)
+		where 
+			rn between #{start} and #{end}
+	</select>
+	
+	<select id="search_getCount" resultType="com.web.model.MusicboardVO">
+  		select * from indietrade_musicboard
+	</select>
+	
+	<select id="searchArtist" resultType="com.web.model.MusicboardVO">
+		select * from indietrade_musicboard 
+		where
+			lower(musicboard_artistname) like lower('%'||#{searchString, jdbcType=VARCHAR}||'%')
+	</select>
+	
+	<select id="searchAlbum" resultType="com.web.model.MusicboardVO">
+		select * from indietrade_musicboard 
+		where
+			lower(musicboard_name) like lower('%'||#{searchString, jdbcType=VARCHAR}||'%')
+	</select>
+	
+	<select id="searchMusicName" resultType="com.web.model.MusicVO">
+		select * from indietrade_music 
+		where
+			lower(music_name) like lower('%'||#{searchString, jdbcType=VARCHAR}||'%')
+	</select>
+	
+	<select id="search" resultType="com.web.model.MusicboardVO">
+		select DISTINCT * from indietrade_musicboard 
+		where
+			lower(musicboard_artistname) like lower('%'||#{searchString, jdbcType=VARCHAR}||'%') or lower(musicboard_name)
+			like lower('%'||#{searchString , jdbcType=VARCHAR}||'%')
+	</select>
+	
+	<select id="getMBoard" resultType="com.web.model.MusicboardVO">
+		select * from indietrade_musicboard 
+		where 
+			musicboard_no = #{music_musicboardno}
+	</select>
+	
+	<select id="searchViewMusicName" resultType="com.web.model.MusicVO">
+		select * from (select rownum rn, A.* from (select * from indietrade_music 
+		where
+			lower(music_name) like lower('%'||#{searchString, jdbcType=VARCHAR}||'%') order by music_name desc)A)
+		where 
+			rn between #{start} and #{end}	
+	</select>
+	
+	<select id="searchGenre_GetCount" resultType="int" parameterType="String">
+		select count(*) from indietrade_musicboard 
+      	where 
+      		musicboard_genre = #{genre}
+    </select>
+
+	<select id="SearchAllGenre" resultType="com.web.model.MusicboardVO" parameterType="java.util.HashMap">
+      	select DISTINCT * from (select rownum rn, A.* from (select * from indietrade_musicboard 
+      	where 
+			musicboard_genre = #{genre} order by musicboard_no desc)A)
+      	where rn between #{start} and #{end}
+   	</select>
+
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="com.web.mapper">
+	
+	<!-- insert reply -->
+	<insert id="insertreply" parameterType="com.web.model.ReplyVO">
+  		insert into indietrade_reply(
+  			reply_no, 
+  			qnaboard_no, 
+  			reply_text, 
+  			reply_writer, 
+  			reply_regdate
+  		)values(
+  			indietrade_reply_seq.nextval, 
+  			#{qnaboard_no}, 
+  			#{reply_text}, 
+  			#{reply_writer}, 
+  			sysdate
+  		)
+  	</insert>
+  	
+  	<!-- delete reply -->
+	<insert id="deletereply" parameterType="int">
+  		delete from indietrade_reply where reply_no=#{reply_no}
+  	</insert>
+  	
+  	<!-- list replies -->
+    <select id="listreply" parameterType="int" resultType="com.web.model.ReplyVO">
+        SELECT reply_no, qnaboard_no, reply_text, reply_writer, reply_regdate FROM indietrade_reply 
+        WHERE 
+        	qnaboard_no=#{qnaboard_no} ORDER BY reply_no
+    </select>
+	
+
+  	
+   
+</mapper>	

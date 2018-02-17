@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.mapper">
+	
+	<!-- list all qnaboards -->
+	<select id="listQnaBoard" resultType="com.web.model.QnAboardVO">
+		select * from indietrade_qnaboard order by qnaboard_no desc
+	</select>
+	
+	<!-- insert qnaboard -->
+  	<insert id="insertQnaBoard" parameterType="com.web.model.QnAboardVO">
+  		insert into indietrade_qnaboard values(
+  			indietrade_qnaboard_seq.nextval, 
+  			#{qnaboard_title}, 
+  			#{qnaboard_content}, 
+  			#{qnaboard_passwd}, 
+  			#{qnaboard_writer}, 
+  			sysdate, 
+  			0, 
+  			0
+  		)
+  	</insert>
+	
+	<!-- update replycount of certain qnaboard (when reply written) -->
+	<update id="updateRecnt" parameterType="int">
+  		update indietrade_qnaboard set qnaboard_recnt = qnaboard_recnt + 1 where qnaboard_no = #{qnaboard_no}
+  	</update>
+  	
+  	<!-- deupdate replycount of certain qnaboard (when reply deleted) -->
+  	<update id="DeupdateRecnt" parameterType="int">
+  		update indietrade_qnaboard set qnaboard_recnt = qnaboard_recnt - 1 where qnaboard_no = #{qnaboard_no}
+  	</update>
+	
+	<!-- get qnaboard by qnaboard_no -->
+  	<select id="getQnaBoard" resultType="com.web.model.QnAboardVO" parameterType="int">
+  		select * from indietrade_qnaboard where qnaboard_no = #{qnaboard_no}
+  	</select>
+  	
+  	<!-- update readcount of certain qnaboard -->
+  	<update id="readCount" parameterType="int">
+  		update indietrade_qnaboard set qnaboard_viewcnt = qnaboard_viewcnt + 1 where qnaboard_no = #{qnaboard_no}
+  	</update>
+  	
+  	<!-- delete qnaboard -->
+ 	<delete id="deleteQnaBoard" parameterType="int">
+ 		delete from indietrade_qnaboard where qnaboard_no = #{qnaboard_no}
+ 	</delete>
+ 	
+ 	<!-- update qnaboard -->
+ 	<update id="updateQnaBoard" parameterType="com.web.model.QnAboardVO">
+ 		update indietrade_qnaboard set qnaboard_title=#{qnaboard_title}, qnaboard_content=#{qnaboard_content} where qnaboard_no = #{qnaboard_no}
+ 	</update>
+	
+	<!-- count how many qnaboards written -->
+    <select id="getQnaCount" resultType="int">
+    	select count(*) from indietrade_qnaboard
+   	</select>
+   
+   	<!-- get count of qna search result by all, name, content, title -->
+   	<select id="getQnaCountByCondition" parameterType="String" resultType="int">
+		select count(*) from indietrade_qnaboard
+		<if test="searchOption =='all'">
+			WHERE 
+				qnaboard_writer LIKE '%'||#{searchString}||'%' OR
+				qnaboard_content LIKE '%'||#{searchString}||'%' OR
+				qnaboard_title LIKE '%'||#{searchString}||'%'
+		</if>
+		<if test="searchOption =='name'">
+			WHERE 
+				qnaboard_writer LIKE '%'||#{searchString}||'%'
+		</if>
+		<if test="searchOption =='content'">
+			WHERE 
+				qnaboard_content LIKE '%'||#{searchString}||'%'
+		</if>
+		<if test="searchOption =='title'">
+			WHERE 
+				qnaboard_title LIKE '%'||#{searchString}||'%'
+		</if>
+	</select>
+    
+    <!-- get list of qna search result by all, name, content, title -->
+   	<select id="listAllQnaBoard" resultType="com.web.model.QnAboardVO" parameterType="map">
+			select * from (select rownum rn, A.* from 
+		    (select * from indietrade_qnaboard 
+		<if test="searchOption == 'all' and searchString != '' ">
+		    WHERE 
+		    	qnaboard_writer LIKE '%'||#{searchString}||'%' OR
+		    	qnaboard_content LIKE '%'||#{searchString}||'%' OR
+		   		qnaboard_title LIKE '%'||#{searchString}||'%'
+		    	
+		</if>
+    	<if test="searchOption == 'name' and searchString != '' ">
+	       	WHERE 
+	       		qnaboard_writer LIKE '%'||#{searchString}||'%'
+	       		
+    	</if>
+    	<if test="searchOption == 'content' and searchString != '' ">
+	       	WHERE 
+	       		qnaboard_content LIKE '%'||#{searchString}||'%'
+	       		
+    	</if>
+    	<if test="searchOption == 'title' and searchString != '' ">
+	       	WHERE 
+	       		qnaboard_title LIKE '%'||#{searchString}||'%'
+	       		
+    	</if>
+    	<!-- 
+    	<if test="searchOption == null and searchString == '' ">
+      		order by qnaboard_no asc)A) where rn between #{start} and #{end}
+    	</if>
+    	-->
+    	order by qnaboard_no asc)A) where rn between #{start} and #{end}
+   	</select>
+   
+   
+</mapper>	

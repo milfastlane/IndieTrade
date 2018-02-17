@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.mapper">
+    
+    <!-- insert album -->
+	<insert id="insertMusicBoard" parameterType="com.web.model.MusicboardVO">
+		insert into indietrade_musicboard values(
+			INDIETRADE_MUSICBOARD_SEQ.nextval,
+			#{musicboard_name},
+			#{musicboard_imgname},
+			#{musicboard_content},
+			#{musicboard_genre},
+			0,
+			0,
+			sysdate,
+			#{musicboard_releasedate},
+			#{musicboard_artistno},
+			#{musicboard_artistname}
+		)
+	</insert>
+	
+	<!-- get certain album by musicboard_artistno, name  --> 	
+	<select id="getMusicBoarddto" parameterType="com.web.model.MusicboardVO" resultType="com.web.model.MusicboardVO">
+		select * from indietrade_musicboard 
+		where 
+			musicboard_artistno=#{musicboard_artistno} and musicboard_name= #{musicboard_name, jdbcType=VARCHAR}
+			
+	</select>
+	
+	<select id="getMusicBoard2" parameterType="com.web.model.MusicboardVO" resultType="com.web.model.MusicboardVO">
+		select * from indietrade_musicboard 
+		where 
+			musicboard_artistno=#{musicboard_artistno} and musicboard_name= #{musicboard_name, jdbcType=VARCHAR}
+			and musicboard_no=#{musicboard_no}
+	</select>
+	
+	<!-- dupli musicboard check  --> 	
+	<select id="check_duplicated_musicboard" parameterType="com.web.model.MusicboardVO" resultType="java.lang.Integer">
+		select NVL(COUNT(*),0) from indietrade_musicboard 
+		where 
+			musicboard_artistno=#{musicboard_artistno} and musicboard_name= #{musicboard_name, jdbcType=VARCHAR}
+	</select>
+	
+	
+	 
+	<!-- update album readcount + 1 --> 
+	<update id="Count" parameterType="int">
+		update indietrade_musicboard set 
+			musicboard_readcount = musicboard_readcount + 1 
+		where 
+			musicboard_no=#{no}
+	</update>
+	
+	<!-- get all registered albums -->
+	<select id="allMusicboard" resultType="com.web.model.MusicboardVO">
+	  select * from indietrade_musicboard
+	</select>
+	  
+	<!-- insert music -->
+	<insert id="insertMusic" parameterType="com.web.model.MusicVO">
+		insert into indietrade_music values(
+			INDIETRADE_MUSIC_SEQ.nextval,
+			#{music_name},
+			#{music_mvlink},
+			#{music_artistname},
+			#{music_musicboardname},
+			#{music_musicboardno},
+			#{music_filename, jdbcType=VARCHAR},
+			#{musicboard_imgname, jdbcType=VARCHAR},
+			#{musicboard_name, jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<!-- get certain music by music_musicboardno, musicboardname -->
+	<select id="getMusic" parameterType="com.web.model.MusicboardVO" resultType="com.web.model.MusicVO">
+		select * from indietrade_music where music_musicboardno = #{musicboard_no} and music_musicboardname = #{musicboard_name}
+	</select>
+	
+	<!-- get musics by music_musicboard_no (?) CHECK LATER -->
+	<select id="getMusics" parameterType="int" resultType="com.web.model.MusicVO">
+		select * from indietrade_music where music_musicboardno = #{musicboard_no}
+	</select>
+	
+	<!-- get certain musicboard by musicboard_no -->
+	<select id="getMusicboard" parameterType="int" resultType="com.web.model.MusicboardVO">
+	 	select * from indietrade_musicboard where musicboard_no = #{no}
+	</select>
+	
+	<!-- delete music by music_musicboardno (STUDY LATER) -->
+	<delete id="musicAll_del" parameterType="int">
+		delete indietrade_music where music_musicboardno = #{musicboard_no}
+	</delete>
+	
+	<!-- delete musicboard by musicboard_no (STUDY LATER) -->
+	<delete id="musicboard_del" parameterType="int">
+		delete indietrade_musicboard where musicboard_no = #{musicboard_no}
+	</delete>
+	
+	<!-- delete music by music_no (STUDY LATER) -->
+	<delete id="music_del" parameterType="int">
+		delete indietrade_music where music_no =#{music_no}
+	</delete>
+
+
+</mapper>	

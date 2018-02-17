@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.mapper">
+	
+	<!-- insert user (fan OR artist) -->
+	<insert id="insertUser" parameterType="com.web.model.UserVO">
+		insert into indietrade_user values(
+			indietrade_user_seq.nextval,
+			#{user_id},
+			#{user_name},
+			#{user_email}, 
+			#{user_passwd}, 
+			#{user_birth}, 
+			#{user_gender}, 
+			#{user_phone}, 
+			#{user_ip}, 
+			#{user_filename}, 
+			#{user_filesize}, 
+			#{user_authority}, 
+			'N', 
+			sysdate, 
+			sysdate, 
+			0, 
+			0
+		)
+	</insert>
+	
+	<!-- check Id (ajax) -->
+	<select id="checkId" parameterType="com.web.model.UserVO" resultType="java.lang.Integer">
+    	SELECT NVL(COUNT(*),0) FROM indietrade_user WHERE USER_ID=#{user_id}
+	</select>
+	
+	<!-- check Email (ajax) -->
+	<select id="checkEmail" parameterType="com.web.model.UserVO" resultType="java.lang.Integer">
+    	SELECT NVL(COUNT(*),0) FROM indietrade_user WHERE USER_EMAIL=#{user_email}
+	</select>
+	
+	<!-- check Phone (ajax) -->
+	<select id="checkPhone" parameterType="com.web.model.UserVO" resultType="java.lang.Integer">
+    	SELECT NVL(COUNT(*),0) FROM indietrade_user WHERE USER_PHONE=#{user_phone} 
+	</select>
+	
+	<!-- find id (name, birth, email) -->
+	<select id="checkNBE" parameterType="com.web.model.UserVO" resultType="java.lang.Integer">
+    	SELECT NVL(COUNT(*),0) FROM indietrade_user WHERE USER_NAME=#{user_name} and USER_BIRTH=#{user_birth} and USER_EMAIL=#{user_email}
+	</select>
+	
+	<!-- find password (id, email) -->
+	<select id="checkIE" parameterType="com.web.model.UserVO" resultType="java.lang.Integer">
+    	SELECT NVL(COUNT(*),0) FROM indietrade_user WHERE USER_ID=#{user_id} and USER_EMAIL=#{user_email}
+	</select>
+	
+	<!-- update user info -->
+	<update id="updateUser" parameterType="com.web.model.UserVO" >
+ 		update indietrade_user set 
+ 			user_passwd=#{user_passwd}, 
+ 			user_birth=#{user_birth},
+	 		user_gender=#{user_gender}, 
+	 		user_phone=#{user_phone},
+	 		user_filename=#{user_filename},
+	 		user_filesize=#{user_filesize}	
+	 	where 
+	 		user_no = #{user_no}
+ 	</update>
+	
+	<!-- update password -->
+	<update id="updatePassword" parameterType="com.web.model.UserVO">
+		UPDATE indietrade_user set USER_PASSWD=#{user_passwd} where USER_ID=#{user_id}
+	</update>
+	
+	<!-- if user unregisters -->
+	<update id="updatedeleteduser" parameterType="com.web.model.UserVO">
+		update indietrade_user set 
+			user_id=#{user_id}, 
+	 		user_name=#{user_name}, 
+	 		user_email='0', 
+	 		user_passwd='0',
+	 		user_birth='0',
+	 		user_gender='0', 
+	 		user_phone=#{user_no},
+	 		user_ip='0',
+	 		user_filename=null,
+	 		user_filesize=0,
+	 		user_authority=#{user_authority},
+	 		user_emailauth='0',
+	 		user_joindate='0',
+	 		user_lastvisit=sysdate,
+	 		user_totalvisit=0,
+	 		user_isdelete=1 		
+		where 
+			user_no=#{user_no}		
+	</update>
+
+	<!-- update recent visit, plus 1 on totalvisit of certain user -->
+	<update id="updatevisithistory" parameterType="com.web.model.UserVO">
+		update indietrade_user set user_lastvisit = sysdate, user_totalvisit = user_totalvisit + 1 where user_no = #{user_no}
+	</update>
+	
+	<!-- if email authenticated successfully (user gave valid email and clicked the link) -->
+	<update id="updateEmailAuth" parameterType="com.web.model.UserVO">
+		UPDATE indietrade_user set USER_EMAILAUTH='Y' where USER_ID=#{user_id, jdbcType=VARCHAR}
+	</update>
+	
+	<!-- get user info by user_email -->
+	<select id="getMember" resultType="com.web.model.UserVO" parameterType="String">
+    	select * from indietrade_user where USER_EMAIL=#{user_email}
+  	</select>
+  	
+  	<!-- get user info by user_no -->
+  	<select id="getMember_no" resultType="com.web.model.UserVO" parameterType="int">
+    	select * from indietrade_user where user_no = #{user_no}
+  	</select>
+  	
+  	<!-- get user info by user_id -->
+  	<select id="getMember_username" resultType="com.web.model.UserVO" parameterType="String">
+    	select * from indietrade_user where user_id=#{username}
+  	</select>
+  	
+  	<!-- get user info by user_name -->
+  	<select id="getMember_name" resultType="com.web.model.UserVO" parameterType="String">
+    	select * from indietrade_user where user_name=#{user_name}
+  	</select>
+  	
+  	<!-- get user info by user_id 2 (?) CHECK LATER -->
+  	<select id="getMember_login_id" resultType="com.web.model.UserVO" parameterType="String">
+    	select * from indietrade_user where USER_ID = #{user_id, jdbcType=VARCHAR}
+  	</select>
+  	
+  	<!-- get user_name by user_id and user_passwd (?) CHECK LATER -->
+  	<select id="loginCheck"  resultType="String" parameterType="com.web.model.UserVO">		
+        SELECT user_name FROM indietrade_user WHERE USER_ID = #{user_id, jdbcType=VARCHAR} AND USER_PASSWD = #{user_passwd, jdbcType=VARCHAR}
+    </select>
+    
+  
+  
+</mapper>	
