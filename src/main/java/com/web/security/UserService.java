@@ -39,7 +39,7 @@ public class UserService implements UserDetailsService{
 				role.setName("ROLE_ARTIST");
 			}else if(dto.getUser_authority().equals("user")) {
 				role.setName("ROLE_USER");
-			}
+			} 
 			
 			List<Role> roles = new ArrayList<Role>();
 			roles.add(role);
